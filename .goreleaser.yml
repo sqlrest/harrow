@@ -1,0 +1,65 @@
+version: 2
+
+project_name: harrow
+
+dist: dist
+
+git:
+  ignore_tags:
+    - "saved/*"
+
+builds:
+  - id: "{{ .ProjectName }}"
+    main: ./cmd/{{ .ProjectName }}
+    binary: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
+    no_unique_dist_dir: true
+    env:
+      # harrow links PostgreSQL's parser through pg_query_go, which is cgo, so
+      # CGO must stay on. Cross-compiling cgo needs the matching C toolchains;
+      # release runners supply those.
+      - CGO_ENABLED=1
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+    flags:
+      - -buildvcs=false
+      - -trimpath
+
+archives:
+  - id: default
+    name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    files:
+      - LICENSE*
+      - README*
+      - CHANGELOG*
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+snapshot:
+  version_template: "0.0.0-SNAPSHOT-{{.ShortCommit}}"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "^ci:"
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: Bug Fixes
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
