@@ -23,44 +23,37 @@ var writeFile = os.WriteFile
 
 // Result reports which inputs were not already canonically formatted.
 type Result struct {
-	Changed []filePath `json:"changed"`
+	Changed []FilePath `json:"changed"`
 }
 
-// Run formats the SQL named in args, or standard input when no paths are given.
-// With no paths it reads in and writes the formatted SQL to out. With paths it
-// formats each file: WriteEnabled rewrites changed files in place, ListEnabled
-// prints the paths that would change, and otherwise the formatted SQL goes to
-// out. A file that won't parse stops the run with [constants.ErrFormat].
+// Run formats the SQL named in paths, or standard input when no paths are
+// given. With no paths it reads in and writes the formatted SQL to out. With
+// paths it formats each file: WriteEnabled rewrites changed files in place,
+// ListEnabled prints the paths that would change, and otherwise the formatted
+// SQL goes to out. A file that won't parse stops the run with
+// [constants.ErrFormat].
 func Run(
 	_ context.Context,
 	logger *slog.Logger,
 	cfg Config,
 	in io.Reader,
 	out io.Writer,
-	args ...string,
+	paths ...FilePath,
 ) (Result, error) {
-	paths := pathsFrom(args)
 	if len(paths) == 0 {
 		return Result{}, formatStream(in, out)
 	}
 
 	var result Result
 	for _, path := range paths {
-		if err := formatFile(cfg, out, path, &result); err != nil {
+		next, err := formatFile(cfg, out, path, result)
+		if err != nil {
 			return Result{}, err
 		}
+		result = next
 	}
 	logger.Info("Formatting complete.", "files", len(paths), "changed", len(result.Changed))
 	return result, nil
-}
-
-// pathsFrom turns positional arguments into file paths.
-func pathsFrom(args []string) []filePath {
-	paths := make([]filePath, len(args))
-	for i, arg := range args {
-		paths[i] = filePath(arg)
-	}
-	return paths
 }
 
 // formatStream formats everything read from in and writes it to out.
@@ -69,33 +62,34 @@ func formatStream(in io.Reader, out io.Writer) error {
 	if err != nil {
 		return constants.ErrReadInput.With(err)
 	}
-	formatted, err := format(content)
+	formatted, err := format(sqlText(content))
 	if err != nil {
 		return err
 	}
 	return writeOut(out, formatted)
 }
 
-// formatFile formats one file and routes the result according to cfg, recording
-// the path in result when its formatting differs from what's on disk.
-func formatFile(cfg Config, out io.Writer, path filePath, result *Result) error {
+// formatFile formats one file and routes the output according to cfg, returning
+// result grown by the path when its formatting differs from what's on disk.
+func formatFile(cfg Config, out io.Writer, path FilePath, result Result) (Result, error) {
 	content, err := os.ReadFile(string(path))
 	if err != nil {
-		return constants.ErrOpenFile.With(err, string(path))
+		return Result{}, constants.ErrOpenFile.With(err, string(path))
 	}
-	formatted, err := format(content)
+	original := sqlText(content)
+	formatted, err := format(original)
 	if err != nil {
-		return err
+		return Result{}, err
 	}
-	if formatted != string(content) {
+	if string(formatted) != string(original) {
 		result.Changed = append(result.Changed, path)
 	}
-	return emit(cfg, out, path, string(content), formatted)
+	return result, emit(cfg, out, path, original, formatted)
 }
 
 // emit routes a formatted file: rewritten in place, listed if changed, or
 // printed to out.
-func emit(cfg Config, out io.Writer, path filePath, original, formatted string) error {
+func emit(cfg Config, out io.Writer, path FilePath, original sqlText, formatted formattedSQL) error {
 	switch {
 	case bool(cfg.WriteEnabled):
 		return writeBack(path, original, formatted)
@@ -108,8 +102,8 @@ func emit(cfg Config, out io.Writer, path filePath, original, formatted string) 
 
 // writeBack rewrites path only when its formatting actually changed, so an
 // already-formatted file keeps its modification time.
-func writeBack(path filePath, original, formatted string) error {
-	if formatted == original {
+func writeBack(path FilePath, original sqlText, formatted formattedSQL) error {
+	if string(formatted) == string(original) {
 		return nil
 	}
 	if err := writeFile(string(path), []byte(formatted), fileMode); err != nil {
@@ -119,35 +113,35 @@ func writeBack(path filePath, original, formatted string) error {
 }
 
 // listChanged prints path when its formatting differs from disk.
-func listChanged(out io.Writer, path filePath, original, formatted string) error {
-	if formatted == original {
+func listChanged(out io.Writer, path FilePath, original sqlText, formatted formattedSQL) error {
+	if string(formatted) == string(original) {
 		return nil
 	}
-	return writeLine(out, string(path))
+	return writeLine(out, path)
 }
 
 // format renders content through gomatic/go-sql and appends the trailing newline
 // a source file carries. A parse failure comes back wrapped in
 // [constants.ErrFormat].
-func format(content []byte) (string, error) {
+func format(content sqlText) (formattedSQL, error) {
 	out, err := formatter.New().Format(sql.SQL(content))
 	if err != nil {
 		return "", constants.ErrFormat.With(err)
 	}
-	return out + "\n", nil
+	return formattedSQL(out + "\n"), nil
 }
 
 // writeOut writes formatted SQL to out.
-func writeOut(out io.Writer, formatted string) error {
-	if _, err := io.WriteString(out, formatted); err != nil {
+func writeOut(out io.Writer, formatted formattedSQL) error {
+	if _, err := io.WriteString(out, string(formatted)); err != nil {
 		return constants.ErrWriteFile.With(err, "stdout")
 	}
 	return nil
 }
 
 // writeLine writes one line followed by a newline to out.
-func writeLine(out io.Writer, line string) error {
-	if _, err := fmt.Fprintln(out, line); err != nil {
+func writeLine(out io.Writer, line FilePath) error {
+	if _, err := fmt.Fprintln(out, string(line)); err != nil {
 		return constants.ErrWriteFile.With(err, "stdout")
 	}
 	return nil

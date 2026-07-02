@@ -15,42 +15,15 @@ import (
 	"github.com/gomatic/go-log"
 	"github.com/urfave/cli/v3"
 
-	"github.com/sqlrest/harrow/internal/domain/format"
+	format "github.com/sqlrest/harrow/internal/app/commands/format"
 )
 
-const (
-	argUsage    = `[file...]`
-	description = `harrow reads PostgreSQL SQL, lays it out in a canonical style, and writes it
-back out. With no files it reads standard input and writes to standard output,
-so it composes in a pipe:
-
-  cat schema.sql | harrow
-
-Given files, it prints each formatted file to standard output, or:
-
-  harrow --write *.sql      # rewrite changed files in place
-  harrow --list *.sql       # print the paths that would change
-
-harrow never changes what a statement means and never drops a comment: every
-rendering is verified against the original, and anything it can't prove faithful
-is left exactly as written.`
-	envName   = "HARROW"
-	envPrefix = envName + "_"
-	name      = `harrow`
-	usage     = `Format PostgreSQL SQL.`
-)
-
-const (
-	listFlag  = "list"
-	writeFlag = "write"
-)
+const envPrefix = `HARROW_`
 
 var (
-	cfg           format.Config
 	loggerConfig  log.LoggerConfig
 	appCreator    = createApp
 	loggerCreator = productionLogger
-	runFormat     = format.Run
 )
 
 // productionLogger builds the application logger from the parsed logging flags.
@@ -80,60 +53,33 @@ func run(args []string) int {
 	return 0
 }
 
-// createApp constructs the definition of the CLI.
+// createApp assembles the CLI: harrow is a single-verb tool, so the format
+// command is the root, and the composition root adds only the version, the
+// shell completion, the logger hook, and the logging flags.
 func createApp(getLogger app.GetLoggerFunc) *cli.Command {
-	cliApp := &cli.Command{
-		Name:                  name,
-		Usage:                 usage,
-		ArgsUsage:             argUsage,
-		Description:           description,
-		Version:               version,
-		EnableShellCompletion: true,
-		Action:                formatAction,
-		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
-			c.Root().Metadata[app.LoggerMetadataKey] = getLogger(c)
-			return ctx, nil
+	cliApp := format.Command()
+	cliApp.Version = version
+	cliApp.EnableShellCompletion = true
+	cliApp.Before = app.LoggerBefore(getLogger)
+	cliApp.Flags = append(
+		cliApp.Flags,
+		&cli.StringFlag{
+			Name:        "log-level",
+			Sources:     cli.EnvVars(envPrefix + "LOG_LEVEL"),
+			Value:       "warn",
+			Usage:       "Set the logging level (debug, info, warn, error)",
+			Destination: (*string)(&loggerConfig.LogLevel),
 		},
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:        writeFlag,
-				Aliases:     []string{"w"},
-				Sources:     cli.EnvVars(envPrefix + "WRITE"),
-				Usage:       "Rewrite each changed file in place instead of writing to stdout",
-				Destination: (*bool)(&cfg.WriteEnabled),
-			},
-			&cli.BoolFlag{
-				Name:        listFlag,
-				Aliases:     []string{"l"},
-				Sources:     cli.EnvVars(envPrefix + "LIST"),
-				Usage:       "Print the paths of files whose formatting would change",
-				Destination: (*bool)(&cfg.ListEnabled),
-			},
-			&cli.StringFlag{
-				Name:        "log-level",
-				Sources:     cli.EnvVars(envPrefix + "LOG_LEVEL"),
-				Value:       "warn",
-				Usage:       "Set the logging level (debug, info, warn, error)",
-				Destination: (*string)(&loggerConfig.LogLevel),
-			},
-			&cli.StringFlag{
-				Name:        "log-format",
-				Sources:     cli.EnvVars(envPrefix + "LOG_FORMAT"),
-				Value:       "text",
-				Usage:       "Set the log output format (text, json)",
-				Destination: (*string)(&loggerConfig.LogFormat),
-			},
+		&cli.StringFlag{
+			Name:        "log-format",
+			Sources:     cli.EnvVars(envPrefix + "LOG_FORMAT"),
+			Value:       "text",
+			Usage:       "Set the log output format (text, json)",
+			Destination: (*string)(&loggerConfig.LogFormat),
 		},
-	}
+	)
 
 	sort.Sort(cli.FlagsByName(cliApp.Flags))
 
 	return cliApp
-}
-
-// formatAction runs the formatting command over the positional file arguments,
-// reading standard input when there are none.
-func formatAction(ctx context.Context, c *cli.Command) error {
-	_, err := runFormat(ctx, app.GetLogger(c), cfg, os.Stdin, c.Root().Writer, c.Args().Slice()...)
-	return err
 }

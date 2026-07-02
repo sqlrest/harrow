@@ -31,7 +31,11 @@ func run(cfg Config, in *bytes.Reader, out *bytes.Buffer, args ...string) (Resul
 	if reader == nil {
 		reader = bytes.NewReader(nil)
 	}
-	return Run(context.Background(), discardLogger(), cfg, reader, out, args...)
+	paths := make([]FilePath, len(args))
+	for i, arg := range args {
+		paths[i] = FilePath(arg)
+	}
+	return Run(context.Background(), discardLogger(), cfg, reader, out, paths...)
 }
 
 // writeTemp writes content to a fresh temp file and returns its path.
@@ -136,7 +140,7 @@ func TestRunListWriteErrorWrapsErrWriteFile(t *testing.T) {
 		Config{ListEnabled: true},
 		bytes.NewReader(nil),
 		failer{err: boom},
-		writeTemp(t, unformatted),
+		FilePath(writeTemp(t, unformatted)),
 	)
 	assert.ErrorIs(t, err, constants.ErrWriteFile)
 }
