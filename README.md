@@ -1,8 +1,3 @@
-[![actions](https://github.com/sqlrest/harrow/actions/workflows/actions.yml/badge.svg)](https://github.com/sqlrest/harrow/actions/workflows/actions.yml)
-[![ci](https://github.com/sqlrest/harrow/actions/workflows/ci.yml/badge.svg)](https://github.com/sqlrest/harrow/actions/workflows/ci.yml)
-[![dockerfiles](https://github.com/sqlrest/harrow/actions/workflows/dockerfiles.yml/badge.svg)](https://github.com/sqlrest/harrow/actions/workflows/dockerfiles.yml)
-[![docs](https://github.com/sqlrest/harrow/actions/workflows/docs.yml/badge.svg)](https://github.com/sqlrest/harrow/actions/workflows/docs.yml)
-[![go](https://github.com/sqlrest/harrow/actions/workflows/go.yml/badge.svg)](https://github.com/sqlrest/harrow/actions/workflows/go.yml)
-[![release](https://github.com/sqlrest/harrow/actions/workflows/release.yml/badge.svg)](https://github.com/sqlrest/harrow/actions/workflows/release.yml)
+[![actions](https://github.com/sqlrest/harrow/actions/workflows/actions.yml/badge.svg)](https://github.com/sqlrest/harrow/actions/workflows/actions.yml) [![ci](https://github.com/sqlrest/harrow/actions/workflows/ci.yml/badge.svg)](https://github.com/sqlrest/harrow/actions/workflows/ci.yml) [![dockerfiles](https://github.com/sqlrest/harrow/actions/workflows/dockerfiles.yml/badge.svg)](https://github.com/sqlrest/harrow/actions/workflows/dockerfiles.yml) [![docs](https://github.com/sqlrest/harrow/actions/workflows/docs.yml/badge.svg)](https://github.com/sqlrest/harrow/actions/workflows/docs.yml) [![go](https://github.com/sqlrest/harrow/actions/workflows/go.yml/badge.svg)](https://github.com/sqlrest/harrow/actions/workflows/go.yml) [![release](https://github.com/sqlrest/harrow/actions/workflows/release.yml/badge.svg)](https://github.com/sqlrest/harrow/actions/workflows/release.yml)
 
 [docs](https://sqlrest.github.io/docs.harrow/)
