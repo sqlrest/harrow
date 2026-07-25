@@ -3,12 +3,12 @@ module github.com/sqlrest/harrow
 go 1.26.4
 
 require (
-	github.com/gomatic/go-app v0.2.0
-	github.com/gomatic/go-error v0.2.2
-	github.com/gomatic/go-log v0.2.0
-	github.com/gomatic/go-sql v0.0.2
+	github.com/gomatic/go-app v0.6.3
+	github.com/gomatic/go-error v0.3.7
+	github.com/gomatic/go-log v0.3.4
+	github.com/gomatic/go-sql v0.1.10
 	github.com/stretchr/testify v1.11.1
-	github.com/urfave/cli/v3 v3.10.0
+	github.com/urfave/cli/v3 v3.10.1
 )
 
 require (
