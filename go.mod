@@ -4,9 +4,9 @@ go 1.26.4
 
 require (
 	github.com/gomatic/go-app v0.6.4
-	github.com/gomatic/go-error v0.2.2
+	github.com/gomatic/go-error v0.3.9
 	github.com/gomatic/go-log v0.3.9
-	github.com/gomatic/go-sql v0.0.2
+	github.com/gomatic/go-sql v0.1.12
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v3 v3.10.1
 )
