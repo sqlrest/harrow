@@ -68,14 +68,14 @@ func createApp(getLogger app.GetLoggerFunc) *cli.Command {
 			Sources:     cli.EnvVars(envPrefix + "LOG_LEVEL"),
 			Value:       "warn",
 			Usage:       "Set the logging level (debug, info, warn, error)",
-			Destination: (*string)(&loggerConfig.LogLevel),
+			Destination: (*string)(&loggerConfig.Level),
 		},
 		&cli.StringFlag{
 			Name:        "log-format",
 			Sources:     cli.EnvVars(envPrefix + "LOG_FORMAT"),
 			Value:       "text",
 			Usage:       "Set the log output format (text, json)",
-			Destination: (*string)(&loggerConfig.LogFormat),
+			Destination: (*string)(&loggerConfig.Format),
 		},
 	)
 
