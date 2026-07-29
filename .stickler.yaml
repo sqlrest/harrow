@@ -1,0 +1,4 @@
+# Soft-finding baselines: a RATCHET — counts may only fall. Exceeding one
+# fails the build and names the rule; a rule absent here is permitted zero.
+soft-baseline:
+  yze/cliopinion: 1
