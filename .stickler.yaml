@@ -1,4 +1,11 @@
 # Soft-finding baselines: a RATCHET — counts may only fall. Exceeding one
 # fails the build and names the rule; a rule absent here is permitted zero.
+# `soft:` is what makes a rule non-gating; `soft-baseline:` is only the
+# per-rule ceiling APPLIED TO the rules named here. A baseline without a
+# matching soft entry is inert — the rule stays hard and fails on its first
+# finding whatever number is recorded beside it.
+soft:
+  - yze/cliopinion
+
 soft-baseline:
   yze/cliopinion: 1
