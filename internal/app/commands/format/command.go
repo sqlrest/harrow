@@ -79,17 +79,11 @@ func Command() *cli.Command {
 }
 
 // action runs the formatting command over the positional file arguments,
-// reading standard input when there are none.
+// reading standard input when there are none. The streams travel in the domain
+// Config alongside the flags.
 func action(ctx context.Context, c *cli.Command) error {
-	_, err := runFormat(ctx, app.GetLogger(c), cfg, stdin, c.Root().Writer, paths(c.Args().Slice())...)
+	cfg.In = stdin
+	cfg.Out = c.Root().Writer
+	_, err := runFormat(ctx, app.GetLogger(c), cfg, c.Args().Slice()...)
 	return err
-}
-
-// paths converts the raw positional arguments into domain file paths.
-func paths(args []string) []domain.FilePath {
-	converted := make([]domain.FilePath, len(args))
-	for i, arg := range args {
-		converted[i] = domain.FilePath(arg)
-	}
-	return converted
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/gomatic/go-sql/formatter"
 
 	"github.com/sqlrest/harrow/internal/constants"
+	"github.com/sqlrest/harrow/internal/domain"
 )
 
 // fileMode is the permission new in-place writes keep; it matches the common
@@ -26,33 +27,26 @@ type Result struct {
 	Changed []FilePath `json:"changed"`
 }
 
-// Run formats the SQL named in paths, or standard input when no paths are
-// given. With no paths it reads in and writes the formatted SQL to out. With
-// paths it formats each file: WriteEnabled rewrites changed files in place,
-// ListEnabled prints the paths that would change, and otherwise the formatted
-// SQL goes to out. A file that won't parse stops the run with
-// [constants.ErrFormat].
-func Run(
-	_ context.Context,
-	logger *slog.Logger,
-	cfg Config,
-	in io.Reader,
-	out io.Writer,
-	paths ...FilePath,
-) (Result, error) {
-	if len(paths) == 0 {
-		return Result{}, formatStream(in, out)
+// Run formats the SQL named by the positional arguments, or standard input
+// when there are none. With no arguments it reads cfg.In and writes the
+// formatted SQL to cfg.Out. With arguments it formats each file: WriteEnabled
+// rewrites changed files in place, ListEnabled prints the paths that would
+// change, and otherwise the formatted SQL goes to cfg.Out. A file that won't
+// parse stops the run with [constants.ErrFormat].
+func Run(_ context.Context, logger *slog.Logger, cfg Config, args ...domain.Argument) (Result, error) {
+	if len(args) == 0 {
+		return Result{}, formatStream(cfg.In, cfg.Out)
 	}
 
 	var result Result
-	for _, path := range paths {
-		next, err := formatFile(cfg, out, path, result)
+	for _, arg := range args {
+		next, err := formatFile(cfg, cfg.Out, FilePath(arg), result)
 		if err != nil {
 			return Result{}, err
 		}
 		result = next
 	}
-	logger.Info("Formatting complete.", "files", len(paths), "changed", len(result.Changed))
+	logger.Info("Formatting complete.", "files", len(args), "changed", len(result.Changed))
 	return result, nil
 }
 

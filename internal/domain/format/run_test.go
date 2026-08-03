@@ -27,15 +27,12 @@ func discardLogger() *slog.Logger {
 
 // run is Run with the throwaway context and logger filled in.
 func run(cfg Config, in *bytes.Reader, out *bytes.Buffer, args ...string) (Result, error) {
-	reader := in
-	if reader == nil {
-		reader = bytes.NewReader(nil)
+	cfg.In = in
+	if in == nil {
+		cfg.In = bytes.NewReader(nil)
 	}
-	paths := make([]FilePath, len(args))
-	for i, arg := range args {
-		paths[i] = FilePath(arg)
-	}
-	return Run(context.Background(), discardLogger(), cfg, reader, out, paths...)
+	cfg.Out = out
+	return Run(context.Background(), discardLogger(), cfg, args...)
 }
 
 // writeTemp writes content to a fresh temp file and returns its path.
@@ -116,7 +113,7 @@ func TestRunMissingFileWrapsErrOpenFile(t *testing.T) {
 func TestRunStdinReadErrorWrapsErrReadInput(t *testing.T) {
 	const boom errs.Const = "boom"
 	var out bytes.Buffer
-	_, err := Run(context.Background(), discardLogger(), Config{}, failer{err: boom}, &out)
+	_, err := Run(context.Background(), discardLogger(), Config{In: failer{err: boom}, Out: &out})
 	assert.ErrorIs(t, err, constants.ErrReadInput)
 }
 
@@ -125,9 +122,7 @@ func TestRunStdoutWriteErrorWrapsErrWriteFile(t *testing.T) {
 	_, err := Run(
 		context.Background(),
 		discardLogger(),
-		Config{},
-		bytes.NewReader([]byte(unformatted)),
-		failer{err: boom},
+		Config{In: bytes.NewReader([]byte(unformatted)), Out: failer{err: boom}},
 	)
 	assert.ErrorIs(t, err, constants.ErrWriteFile)
 }
@@ -137,10 +132,8 @@ func TestRunListWriteErrorWrapsErrWriteFile(t *testing.T) {
 	_, err := Run(
 		context.Background(),
 		discardLogger(),
-		Config{ListEnabled: true},
-		bytes.NewReader(nil),
-		failer{err: boom},
-		FilePath(writeTemp(t, unformatted)),
+		Config{ListEnabled: true, In: bytes.NewReader(nil), Out: failer{err: boom}},
+		writeTemp(t, unformatted),
 	)
 	assert.ErrorIs(t, err, constants.ErrWriteFile)
 }
