@@ -3,9 +3,9 @@ module github.com/sqlrest/harrow
 go 1.26.4
 
 require (
-	github.com/gomatic/go-app v0.6.4
-	github.com/gomatic/go-error v0.2.2
-	github.com/gomatic/go-log v0.3.9
+	github.com/gomatic/go-app v0.7.3
+	github.com/gomatic/go-error v0.3.15
+	github.com/gomatic/go-log v0.3.13
 	github.com/gomatic/go-sql v0.0.2
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v3 v3.10.1
@@ -13,9 +13,9 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/gomatic/go-output v0.3.7 // indirect
+	github.com/gomatic/go-output v0.3.21 // indirect
 	github.com/pganalyze/pg_query_go/v6 v6.2.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
