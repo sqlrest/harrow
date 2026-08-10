@@ -15,9 +15,20 @@ import (
 	"github.com/sqlrest/harrow/internal/constants"
 )
 
+// The fixtures are written out line by line rather than as one opaque blob,
+// because the expected value is a LAYOUT and a layout read as an escaped
+// one-liner is a value nobody can check by eye.
+//
+// go-sql's house style right-aligns every clause keyword to a six-column
+// "river" and leads each subsequent item with its comma at that same column
+// (formatter/house.go, riverWidth = 6). So `select` fills the river exactly,
+// `from` takes two spaces of padding, and the second column's comma sits under
+// the last letter of `select`.
 const (
 	unformatted = "SELECT   a,b   FROM t"
-	formatted   = "select a, b from t\n"
+	formatted   = "select a\n" +
+		"     , b\n" +
+		"  from t\n"
 )
 
 // discardLogger is a logger that throws its output away.

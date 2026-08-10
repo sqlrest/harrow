@@ -53,7 +53,7 @@ func TestFormatActionFormatsFileToStdout(t *testing.T) {
 
 	var stdout bytes.Buffer
 	require.NoError(t, testApp(&stdout).Run(context.Background(), []string{appName, path}))
-	assert.Equal(t, "select a from t\n", stdout.String())
+	assert.Equal(t, "select a\n  from t\n", stdout.String())
 }
 
 func TestFormatActionPropagatesError(t *testing.T) {

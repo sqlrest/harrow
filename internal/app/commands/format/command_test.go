@@ -51,7 +51,7 @@ func TestActionFormatsFileToStdout(t *testing.T) {
 	path := writeTemp(t, "SELECT   a   FROM t")
 	var stdout bytes.Buffer
 	require.NoError(t, testCommand(&stdout).Run(context.Background(), []string{name, path}))
-	assert.Equal(t, "select a from t\n", stdout.String())
+	assert.Equal(t, "select a\n  from t\n", stdout.String())
 }
 
 func TestActionFormatsStdinWhenNoArgs(t *testing.T) {
@@ -61,7 +61,7 @@ func TestActionFormatsStdinWhenNoArgs(t *testing.T) {
 
 	var stdout bytes.Buffer
 	require.NoError(t, testCommand(&stdout).Run(context.Background(), []string{name}))
-	assert.Equal(t, "select a from t\n", stdout.String())
+	assert.Equal(t, "select a\n  from t\n", stdout.String())
 }
 
 func TestActionListsChangedFiles(t *testing.T) {
