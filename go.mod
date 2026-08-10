@@ -6,7 +6,7 @@ require (
 	github.com/gomatic/go-app v0.7.3
 	github.com/gomatic/go-error v0.3.15
 	github.com/gomatic/go-log v0.3.13
-	github.com/gomatic/go-sql v0.0.2
+	github.com/gomatic/go-sql v0.1.27
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v3 v3.10.1
 )
