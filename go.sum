@@ -8,8 +8,8 @@ github.com/gomatic/go-log v0.3.13 h1:7J5+0KDifkECdfNe26BER05esPCCtUVCsmGcvictWXU
 github.com/gomatic/go-log v0.3.13/go.mod h1:gxjlU3zqKVxwSvwUR34AiqV501/h4fanaz/QmmXPsDU=
 github.com/gomatic/go-output v0.3.21 h1:PWdh3bNDLMGft1kRur7DF7+s702087WqZjqLlVWc7TE=
 github.com/gomatic/go-output v0.3.21/go.mod h1:eIofhQ2YG1/G+8ch4j6XSIEmnu5jSFXhum7NQmnZPxs=
-github.com/gomatic/go-sql v0.1.27 h1:TFPOB+Rr/jOdFOUUZmALcC27boTirf1k9zAUqLJSRPQ=
-github.com/gomatic/go-sql v0.1.27/go.mod h1:kHTpSR8NQy/nGJH7T9edsJ0IJlpqqqVPPtoWtTd8Xpk=
+github.com/gomatic/go-sql v0.1.29 h1:DSv13+kcQFb4L2mR9JFf45tqrAhJo9IV8LdaQV3xzuQ=
+github.com/gomatic/go-sql v0.1.29/go.mod h1:WkO2wMk6cK+Vlc+wvNbbnrds7Nsu3rtbnc0+jk0RQeI=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
